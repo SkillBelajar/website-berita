@@ -13,7 +13,21 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const executeLogin = async () => {
-    if (!email || !password) {
+    // Ambil value dari state atau DOM langsung untuk mendukung password manager & autofill
+    const inputEmail =
+      email.trim() ||
+      (typeof document !== "undefined"
+        ? (document.querySelector('input[type="email"]') as HTMLInputElement)?.value?.trim()
+        : "") ||
+      "";
+    const inputPass =
+      password ||
+      (typeof document !== "undefined"
+        ? (document.querySelector('input[type="password"]') as HTMLInputElement)?.value
+        : "") ||
+      "";
+
+    if (!inputEmail || !inputPass) {
       setErrorMsg("Mohon masukkan email dan kata sandi.");
       return;
     }
@@ -26,7 +40,7 @@ export default function LoginPage() {
       const res = await clientFetch("/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email: inputEmail, password: inputPass }),
       });
 
       const data = await res.json();
@@ -51,12 +65,27 @@ export default function LoginPage() {
         // abaikan jika me gagal, nama fallback dipakai
       }
 
-      saveAuth(data.token, data.role, userName, email);
-      setSuccessMsg(`Login berhasil! Selamat datang, ${userName}. Mengalihkan...`);
+      // Tentukan tujuan redirect berdasarkan role pengguna
+      const redirectTarget =
+        data.role === "superadmin" || data.role === "editor"
+          ? "/admin"
+          : data.role === "journalist"
+          ? "/tulis-berita"
+          : "/";
+
+      const targetLabel =
+        redirectTarget === "/admin"
+          ? "Panel Redaksi & Administrator"
+          : redirectTarget === "/tulis-berita"
+          ? "Ruang Tulis Berita"
+          : "Beranda";
+
+      saveAuth(data.token, data.role, userName, inputEmail);
+      setSuccessMsg(`Login berhasil! Selamat datang, ${userName}. Mengalihkan ke ${targetLabel}...`);
 
       setTimeout(() => {
-        window.location.href = "/";
-      }, 700);
+        window.location.href = redirectTarget;
+      }, 500);
     } catch {
       setErrorMsg("Gagal terhubung ke server autentikasi. Silakan periksa koneksi Anda.");
       setIsLoading(false);
@@ -126,8 +155,7 @@ export default function LoginPage() {
         </div>
 
         <button
-          type="button"
-          onClick={executeLogin}
+          type="submit"
           disabled={isLoading || !!successMsg}
           className="w-full py-3 px-4 rounded-xl font-bold text-sm text-white bg-red-700 hover:bg-red-800 disabled:opacity-50 transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
         >
