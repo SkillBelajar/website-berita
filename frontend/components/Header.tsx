@@ -117,6 +117,18 @@ export default function Header() {
           <div className="hidden md:flex items-center gap-3">
             {auth.token ? (
               <div className="flex items-center gap-3">
+                {/* Tombol Tulis Berita untuk Redaksi */}
+                {(auth.role === "superadmin" ||
+                  auth.role === "editor" ||
+                  auth.role === "journalist") && (
+                  <Link
+                    href="/tulis-berita"
+                    className="px-3.5 py-1.5 text-xs font-black text-white bg-red-700 hover:bg-red-800 rounded-lg transition-colors shadow-xs flex items-center gap-1.5"
+                  >
+                    <span>✍️</span> Tulis Berita
+                  </Link>
+                )}
+
                 <div className="flex items-center gap-2.5 bg-slate-50 border border-slate-200 px-3.5 py-1.5 rounded-full shadow-2xs">
                   <div className="w-7 h-7 rounded-full bg-red-700 text-white text-xs font-bold flex items-center justify-center">
                     {auth.name ? auth.name[0].toUpperCase() : "U"}
@@ -282,12 +294,25 @@ export default function Header() {
                   <div className="text-xs text-slate-300">
                     Masuk sebagai: <strong className="text-white">{auth.name}</strong> ({auth.role})
                   </div>
+
+                  {(auth.role === "superadmin" ||
+                    auth.role === "editor" ||
+                    auth.role === "journalist") && (
+                    <Link
+                      href="/tulis-berita"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block w-full text-center py-2 text-xs font-black text-white bg-red-700 hover:bg-red-800 rounded-md"
+                    >
+                      ✍️ Tulis Berita Baru
+                    </Link>
+                  )}
+
                   <button
                     onClick={() => {
                       handleLogout();
                       setIsMenuOpen(false);
                     }}
-                    className="w-full py-2 text-xs font-bold text-white bg-red-700 rounded-md"
+                    className="w-full py-2 text-xs font-bold text-slate-300 hover:text-white bg-slate-800 rounded-md"
                   >
                     Keluar Akun
                   </button>
