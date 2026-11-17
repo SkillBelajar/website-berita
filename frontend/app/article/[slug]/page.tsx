@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getArticleBySlug, formatDateTimeWIB } from "@/lib/api";
 import ShareButtons from "@/components/ShareButtons";
+import CommentSection from "@/components/CommentSection";
+import HakJawabForm from "@/components/HakJawabForm";
 
 type Props = {
   params: Promise<{ slug: string }>;
@@ -231,31 +233,16 @@ export default async function ArticleDetailPage({ params }: Props) {
           </div>
           <ShareButtons title={article.title} />
         </div>
-
-        {/* HAK JAWAB & FOOTER ARTIKEL SESUAI PPMS */}
-        <div className="mt-10 pt-6 border-t border-slate-200 bg-slate-50/80 -mx-6 sm:-mx-10 lg:-mx-14 -mb-6 sm:-mb-10 lg:-mb-14 p-6 sm:p-10 rounded-b-3xl space-y-4">
-          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-            <div className="space-y-1 text-xs text-slate-600">
-              <strong className="text-slate-900 font-bold block text-sm sm:text-base flex items-center gap-1.5">
-                <span>⚖️</span> Hak Jawab & Klarifikasi Publik
-              </strong>
-              <p className="max-w-xl leading-relaxed">
-                Bagi narasumber atau masyarakat yang merasa dirugikan oleh materi pemberitaan ini, Anda berhak mengajukan klarifikasi, ralat fakta, atau Hak Jawab sesuai Pasal 5 UU Pers No. 40/1999 dan Pedoman Pemberitaan Media Siber.
-              </p>
-            </div>
-            <Link
-              href="/tentang-kami#hak-jawab"
-              className="whitespace-nowrap px-5 py-2.5 bg-slate-900 text-white hover:bg-slate-800 text-xs font-bold rounded-xl transition-colors shadow-xs flex items-center gap-1.5"
-            >
-              <span>Ajukan Hak Jawab</span>
-              <span>↗</span>
-            </Link>
-          </div>
-        </div>
       </div>
 
+      {/* FORMULIR HAK JAWAB & KOREKSI REDAKSI (Kepatuhan Butir 5 PPMS & UU Pers) */}
+      <HakJawabForm articleId={article.id} articleTitle={article.title} />
+
+      {/* KOLOM DISKUSI KOMENTAR (Kepatuhan Butir 6 PPMS & UGC Moderation) */}
+      <CommentSection articleId={article.id} />
+
       {/* Navigasi Kembali */}
-      <div className="flex justify-between items-center px-2 text-xs font-semibold text-blue-700">
+      <div className="flex justify-between items-center px-2 pt-4 text-xs font-semibold text-blue-700">
         <Link href="/" className="hover:underline flex items-center gap-1">
           <span>←</span> Kembali ke Beranda Utama
         </Link>

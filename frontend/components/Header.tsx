@@ -1,10 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { getAuth, clearAuth, AuthState } from "@/lib/auth";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [auth, setAuth] = useState<AuthState>({
+    token: null,
+    role: null,
+    name: null,
+    email: null,
+  });
+
+  useEffect(() => {
+    // Muat initial state
+    setAuth(getAuth());
+
+    const updateAuth = () => {
+      setAuth(getAuth());
+    };
+
+    window.addEventListener("auth-changed", updateAuth);
+    return () => window.removeEventListener("auth-changed", updateAuth);
+  }, []);
+
+  const handleLogout = () => {
+    clearAuth();
+  };
 
   return (
     <header className="border-b border-neutral-200 bg-white sticky top-0 z-50 shadow-xs">
@@ -18,8 +41,12 @@ export default function Header() {
           <div className="flex items-center gap-4 text-neutral-300 text-[11px]">
             <span>Terverifikasi Digital</span>
             <span>•</span>
+            <Link href="/panduan-pengguna" className="hover:text-white underline underline-offset-2">
+              Panduan Pembaca & PPMS
+            </Link>
+            <span>•</span>
             <Link href="/tentang-kami" className="hover:text-white underline underline-offset-2">
-              Struktur Redaksi & Visi
+              Struktur Redaksi
             </Link>
           </div>
         </div>
@@ -41,7 +68,7 @@ export default function Header() {
           </div>
 
           {/* Navigation Links Desktop */}
-          <nav className="hidden md:flex items-center gap-8">
+          <nav className="hidden md:flex items-center gap-7">
             <Link
               href="/"
               className="text-sm font-semibold text-neutral-800 hover:text-blue-700 transition-colors"
@@ -60,22 +87,55 @@ export default function Header() {
             >
               Tentang Kami & Redaksi
             </Link>
+            <Link
+              href="/panduan-pengguna"
+              className="text-sm font-semibold text-neutral-600 hover:text-blue-700 transition-colors"
+            >
+              Panduan Pengguna
+            </Link>
           </nav>
 
-          {/* User Auth Buttons */}
+          {/* User Auth Buttons Desktop */}
           <div className="hidden md:flex items-center gap-3">
-            <Link
-              href="/login"
-              className="px-4 py-2 text-sm font-semibold text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100 rounded-md transition-colors"
-            >
-              Masuk
-            </Link>
-            <Link
-              href="/register"
-              className="px-4 py-2 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded-md transition-colors shadow-xs"
-            >
-              Daftar
-            </Link>
+            {auth.token ? (
+              <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-full">
+                  <span className="w-6 h-6 rounded-full bg-blue-700 text-white text-[11px] font-bold flex items-center justify-center">
+                    {auth.name ? auth.name[0].toUpperCase() : "U"}
+                  </span>
+                  <div className="flex flex-col">
+                    <span className="text-xs font-bold text-slate-900 leading-tight">
+                      {auth.name}
+                    </span>
+                    <span className="text-[10px] text-blue-700 capitalize font-medium">
+                      {auth.role || "User"}
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={handleLogout}
+                  className="px-3 py-1.5 text-xs font-bold text-rose-700 hover:bg-rose-50 border border-rose-200 rounded-lg transition-colors cursor-pointer"
+                >
+                  Keluar
+                </button>
+              </div>
+            ) : (
+              <>
+                <Link
+                  href="/login"
+                  className="px-4 py-2 text-sm font-semibold text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100 rounded-md transition-colors"
+                >
+                  Masuk
+                </Link>
+                <Link
+                  href="/register"
+                  className="px-4 py-2 text-sm font-semibold text-white bg-blue-700 hover:bg-blue-800 rounded-md transition-colors shadow-xs"
+                >
+                  Daftar
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -83,7 +143,7 @@ export default function Header() {
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               type="button"
-              className="p-2 rounded-md text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100 focus:outline-hidden"
+              className="p-2 rounded-md text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100 focus:outline-hidden cursor-pointer"
               aria-label="Toggle menu"
             >
               <svg
@@ -136,21 +196,53 @@ export default function Header() {
             >
               Tentang Kami & Redaksi
             </Link>
-            <div className="pt-2 border-t border-neutral-200 flex gap-2">
-              <Link
-                href="/login"
-                onClick={() => setIsMenuOpen(false)}
-                className="w-1/2 text-center py-2 text-sm font-semibold border border-neutral-300 rounded-md"
-              >
-                Masuk
-              </Link>
-              <Link
-                href="/register"
-                onClick={() => setIsMenuOpen(false)}
-                className="w-1/2 text-center py-2 text-sm font-semibold text-white bg-blue-700 rounded-md"
-              >
-                Daftar
-              </Link>
+            <Link
+              href="/panduan-pengguna"
+              onClick={() => setIsMenuOpen(false)}
+              className="block px-3 py-2 rounded-md text-base font-medium text-neutral-700 hover:bg-neutral-100"
+            >
+              Panduan Pengguna
+            </Link>
+
+            <div className="pt-2 border-t border-neutral-200">
+              {auth.token ? (
+                <div className="px-3 py-2 space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="w-7 h-7 rounded-full bg-blue-700 text-white text-xs font-bold flex items-center justify-center">
+                      {auth.name ? auth.name[0].toUpperCase() : "U"}
+                    </span>
+                    <span className="text-sm font-bold text-slate-800">
+                      {auth.name} ({auth.role})
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      handleLogout();
+                      setIsMenuOpen(false);
+                    }}
+                    className="w-full text-center py-2 text-xs font-bold text-rose-700 bg-rose-50 border border-rose-200 rounded-md cursor-pointer"
+                  >
+                    Keluar dari Akun
+                  </button>
+                </div>
+              ) : (
+                <div className="flex gap-2">
+                  <Link
+                    href="/login"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="w-1/2 text-center py-2 text-sm font-semibold border border-neutral-300 rounded-md"
+                  >
+                    Masuk
+                  </Link>
+                  <Link
+                    href="/register"
+                    onClick={() => setIsMenuOpen(false)}
+                    className="w-1/2 text-center py-2 text-sm font-semibold text-white bg-blue-700 rounded-md"
+                  >
+                    Daftar
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         )}

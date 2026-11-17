@@ -93,6 +93,14 @@ export default async function Footer() {
               </li>
               <li>
                 <Link
+                  href="/panduan-pengguna"
+                  className="hover:text-white transition-colors flex items-center gap-1.5"
+                >
+                  <span className="text-blue-500">›</span> Panduan Pengguna & Etika Komentar
+                </Link>
+              </li>
+              <li>
+                <Link
                   href="/tentang-kami#tos"
                   className="hover:text-white transition-colors flex items-center gap-1.5"
                 >
@@ -113,7 +121,7 @@ export default async function Footer() {
             <span>Standar Kepatuhan Siber Dewan Pers Republik Indonesia</span>
           </div>
           <div className="font-mono text-neutral-400 font-semibold bg-neutral-800 px-3 py-1 rounded-sm border border-neutral-700">
-            Versi Aplikasi: 0.11
+            Versi Aplikasi: 0.12
           </div>
         </div>
       </div>
