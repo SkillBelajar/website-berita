@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"backend/config"
+	"backend/middleware"
 	"backend/models"
 	"backend/routes"
 )
@@ -34,8 +35,11 @@ func main() {
 	mux := http.NewServeMux()
 	routes.SetupRoutes(mux)
 
-	log.Println("Backend server berjalan di port 8080...")
-	if err := http.ListenAndServe(":8080", mux); err != nil {
+	// 4. Bungkus router dengan CORS Middleware untuk frontend Next.js
+	handlerWithCORS := middleware.CORSMiddleware(mux)
+
+	log.Println("Backend server berjalan di port 8080 dengan CORS aktif...")
+	if err := http.ListenAndServe(":8080", handlerWithCORS); err != nil {
 		log.Fatalf("Gagal menjalankan server: %v", err)
 	}
 }
