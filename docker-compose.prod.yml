@@ -1,0 +1,60 @@
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: news_db_prod
+    restart: always
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-secret}
+      POSTGRES_DB: ${POSTGRES_DB:-news_db}
+    ports:
+      - "${PORT_DB:-54321}:5432"
+    volumes:
+      - pgdata_prod:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7-alpine
+    container_name: news_redis_prod
+    restart: always
+    ports:
+      - "${PORT_REDIS:-63821}:6379"
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.prod
+    container_name: news_backend_prod
+    restart: always
+    ports:
+      - "${PORT_BACKEND:-8383}:8080"
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DB_HOST=${DB_HOST:-db}
+      - DB_PORT=${DB_PORT:-5432}
+      - DB_USER=${DB_USER:-admin}
+      - DB_PASSWORD=${DB_PASSWORD:-secret}
+      - DB_NAME=${DB_NAME:-news_db}
+      - REDIS_HOST=${REDIS_HOST:-redis}
+      - REDIS_PORT=${REDIS_PORT:-6379}
+      - JWT_SECRET=${JWT_SECRET:-PROD_SECRET_PPMS_PORTAL_BERITA_2026_KEY}
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile.prod
+    container_name: news_frontend_prod
+    restart: always
+    ports:
+      - "${PORT_FRONTEND:-3001}:3000"
+    depends_on:
+      - backend
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - HOSTNAME=0.0.0.0
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:8383/api/v1}
+
+volumes:
+  pgdata_prod:
