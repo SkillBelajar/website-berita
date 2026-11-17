@@ -117,6 +117,16 @@ export default function Header() {
           <div className="hidden md:flex items-center gap-3">
             {auth.token ? (
               <div className="flex items-center gap-3">
+                {/* Tombol Panel Redaksi untuk Superadmin/Editor */}
+                {(auth.role === "superadmin" || auth.role === "editor") && (
+                  <Link
+                    href="/admin"
+                    className="px-3 py-1.5 text-xs font-black text-slate-800 bg-amber-300 hover:bg-amber-400 rounded-lg transition-colors shadow-2xs flex items-center gap-1.5 border border-amber-400"
+                  >
+                    <span>🛡️</span> Panel Redaksi
+                  </Link>
+                )}
+
                 {/* Tombol Tulis Berita untuk Redaksi */}
                 {(auth.role === "superadmin" ||
                   auth.role === "editor" ||
@@ -294,6 +304,17 @@ export default function Header() {
                   <div className="text-xs text-slate-300">
                     Masuk sebagai: <strong className="text-white">{auth.name}</strong> ({auth.role})
                   </div>
+
+                  {/* Mobile Admin links */}
+                  {(auth.role === "superadmin" || auth.role === "editor") && (
+                    <Link
+                      href="/admin"
+                      onClick={() => setIsMenuOpen(false)}
+                      className="block w-full text-center py-2 text-xs font-black text-slate-900 bg-amber-400 hover:bg-amber-300 rounded-md"
+                    >
+                      🛡️ Panel Redaksi & Kepatuhan
+                    </Link>
+                  )}
 
                   {(auth.role === "superadmin" ||
                     auth.role === "editor" ||
