@@ -2,7 +2,9 @@
 
 :root {
   --background: #f8fafc;
-  --foreground: #0f172a;
+  --foreground: #090d16;
+  --brand-red: #dc2626;
+  --brand-navy: #1e3a8a;
 }
 
 body {
@@ -11,4 +13,15 @@ body {
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Authentic news headline drop-cap styling */
+.drop-cap:first-letter {
+  font-size: 3.5rem;
+  line-height: 0.85;
+  font-weight: 900;
+  float: left;
+  margin-right: 0.75rem;
+  margin-top: 0.25rem;
+  color: #0f172a;
 }

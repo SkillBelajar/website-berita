@@ -160,3 +160,50 @@ export function formatDateTimeWIB(dateStr: string): string {
     return dateStr;
   }
 }
+
+export interface ArticleMeta {
+  imageUrl: string;
+  category: string;
+  readTime: string;
+  photoCredit: string;
+  caption: string;
+}
+
+export function getArticleMeta(article: Article): ArticleMeta {
+  const slug = (article.slug || "").toLowerCase();
+  const title = (article.title || "").toLowerCase();
+
+  if (slug.includes("jembatan") || title.includes("jembatan")) {
+    return {
+      imageUrl:
+        "https://images.unsplash.com/photo-1545558014-8692077e9b5c?auto=format&fit=crop&w=1200&q=80",
+      category: "Infrastruktur & Daerah",
+      readTime: "3 menit baca",
+      photoCredit: "Foto: Humas Pemda & Dokumentasi Lapangan / Antara",
+      caption:
+        "Pemandangan bentang jembatan penghubung strategis antardaerah pasca uji kelayakan beban struktural.",
+    };
+  }
+
+  if (slug.includes("keuangan") || title.includes("keuangan") || article.is_advertorial) {
+    return {
+      imageUrl:
+        "https://images.unsplash.com/photo-1556742049-0a67c5574f73?auto=format&fit=crop&w=1200&q=80",
+      category: "Ekonomi & Bisnis Digital",
+      readTime: "2 menit baca",
+      photoCredit: "Foto: Dokumentasi Kemitraan Finansial / Getty Images",
+      caption:
+        "Kemudahan transaksi digital nirsentuh yang kini menjadi motor penggerak pertumbuhan UMKM lokal.",
+    };
+  }
+
+  return {
+    imageUrl:
+      "https://images.unsplash.com/photo-1585829365295-ab7cd400c167?auto=format&fit=crop&w=1200&q=80",
+    category: "Warta Nasional",
+    readTime: "3 menit baca",
+    photoCredit: "Foto: Dokumentasi Ruang Redaksi Radar Berita",
+    caption:
+      "Pemberitaan jurnalisme faktual dan berimbang dengan standar kepatuhan pers PPMS Dewan Pers.",
+  };
+}

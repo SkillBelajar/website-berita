@@ -32,12 +32,12 @@ export default function RootLayout({
       lang="id"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-neutral-50 text-neutral-900 font-sans selection:bg-blue-100 selection:text-blue-900">
+      <body className="min-h-full flex flex-col bg-slate-100/70 text-slate-900 font-sans selection:bg-red-100 selection:text-red-900">
         <Header />
         <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
           {children}
         </main>
-        <Suspense fallback={<div className="bg-neutral-900 text-neutral-400 p-8 text-center text-xs">Memuat data redaksi & kepatuhan...</div>}>
+        <Suspense fallback={<div className="bg-slate-950 text-slate-400 p-8 text-center text-xs">Memuat data redaksi & kepatuhan...</div>}>
           <Footer />
         </Suspense>
       </body>

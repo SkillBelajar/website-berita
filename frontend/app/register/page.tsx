@@ -100,7 +100,7 @@ export default function RegisterPage() {
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Nama Anda"
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all"
           />
         </div>
 
@@ -114,7 +114,7 @@ export default function RegisterPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="nama@email.com"
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all"
           />
         </div>
 
@@ -128,7 +128,7 @@ export default function RegisterPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="Minimal 6 karakter"
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all"
           />
         </div>
 
@@ -142,14 +142,14 @@ export default function RegisterPage() {
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Ulangi kata sandi"
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all"
           />
         </div>
 
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full py-3 px-4 rounded-xl font-bold text-sm text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-50 transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
+          className="w-full py-3 px-4 rounded-xl font-bold text-sm text-white bg-red-700 hover:bg-red-800 disabled:opacity-50 transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
         >
           {isLoading ? (
             <span>Mendaftarkan...</span>
@@ -164,7 +164,7 @@ export default function RegisterPage() {
 
       <div className="pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
         Sudah memiliki akun?{" "}
-        <Link href="/login" className="font-bold text-blue-700 hover:underline">
+        <Link href="/login" className="font-bold text-red-700 hover:underline">
           Masuk di Sini
         </Link>
       </div>

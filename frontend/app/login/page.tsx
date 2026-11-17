@@ -59,7 +59,7 @@ export default function LoginPage() {
   return (
     <div className="max-w-md mx-auto my-8 bg-white rounded-3xl border border-slate-200/90 shadow-sm p-8 sm:p-10 space-y-6">
       <div className="text-center space-y-2">
-        <span className="inline-block px-3 py-1 bg-blue-50 text-blue-700 text-xs font-bold rounded-full uppercase tracking-wider">
+        <span className="inline-block px-3 py-1 bg-red-50 text-red-700 text-xs font-bold rounded-full uppercase tracking-wider">
           Autentikasi Pembaca
         </span>
         <h1 className="text-2xl sm:text-3xl font-black text-slate-950 tracking-tight">
@@ -88,7 +88,7 @@ export default function LoginPage() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder="nama@email.com"
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all"
           />
         </div>
 
@@ -102,14 +102,14 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder="••••••••"
-            className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all"
+            className="w-full px-4 py-2.5 rounded-xl border border-slate-300 text-slate-900 text-sm focus:outline-none focus:ring-2 focus:ring-red-600 focus:border-transparent transition-all"
           />
         </div>
 
         <button
           type="submit"
           disabled={isLoading}
-          className="w-full py-3 px-4 rounded-xl font-bold text-sm text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-50 transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
+          className="w-full py-3 px-4 rounded-xl font-bold text-sm text-white bg-red-700 hover:bg-red-800 disabled:opacity-50 transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
         >
           {isLoading ? (
             <span>Memproses...</span>
@@ -124,7 +124,7 @@ export default function LoginPage() {
 
       <div className="pt-4 border-t border-slate-100 text-center text-xs text-slate-500">
         Belum memiliki akun?{" "}
-        <Link href="/register" className="font-bold text-blue-700 hover:underline">
+        <Link href="/register" className="font-bold text-red-700 hover:underline">
           Daftar Akun Baru
         </Link>
       </div>

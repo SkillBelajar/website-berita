@@ -187,7 +187,7 @@ export default function CommentSection({ articleId }: { articleId: number }) {
               </div>
               <Link
                 href="/panduan-pengguna"
-                className="text-blue-700 hover:underline text-[11px]"
+                className="text-red-700 hover:underline text-[11px] font-semibold"
               >
                 Baca Pedoman Etika Berkomentar →
               </Link>
@@ -225,7 +225,7 @@ export default function CommentSection({ articleId }: { articleId: number }) {
               <button
                 type="submit"
                 disabled={submitting}
-                className="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-blue-700 hover:bg-blue-800 disabled:opacity-50 transition-all shadow-xs cursor-pointer flex items-center gap-2"
+                className="px-5 py-2.5 rounded-xl font-bold text-xs text-white bg-red-700 hover:bg-red-800 disabled:opacity-50 transition-all shadow-xs cursor-pointer flex items-center gap-2"
               >
                 {submitting ? "Memeriksa & Mengirim..." : "Kirim Tanggapan"}
               </button>
@@ -243,7 +243,7 @@ export default function CommentSection({ articleId }: { articleId: number }) {
             <div className="pt-2 flex justify-center gap-3">
               <Link
                 href="/login"
-                className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-blue-700 hover:bg-blue-800 transition-colors shadow-xs"
+                className="px-5 py-2 rounded-xl text-xs font-bold text-white bg-red-700 hover:bg-red-800 transition-colors shadow-xs"
               >
                 Masuk / Login
               </Link>
