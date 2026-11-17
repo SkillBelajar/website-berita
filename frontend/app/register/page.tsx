@@ -1,23 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useState, FormEvent } from "react";
 import { clientFetch } from "@/lib/api";
 import { saveAuth } from "@/lib/auth";
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSubmit = async (e: FormEvent) => {
-    e.preventDefault();
+  const executeRegister = async () => {
     setErrorMsg("");
+    setSuccessMsg("");
+
+    if (!name || !email || !password) {
+      setErrorMsg("Mohon lengkapi seluruh formulir pendaftaran.");
+      return;
+    }
 
     if (password !== confirmPassword) {
       setErrorMsg("Konfirmasi kata sandi tidak cocok.");
@@ -57,15 +61,25 @@ export default function RegisterPage() {
       if (loginRes.ok) {
         const loginData = await loginRes.json();
         saveAuth(loginData.token, loginData.role, name, email);
-        router.push("/");
+        setSuccessMsg(`Pendaftaran berhasil! Selamat datang, ${name}. Mengalihkan...`);
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 700);
       } else {
-        router.push("/login");
+        setSuccessMsg("Pendaftaran berhasil! Mengalihkan ke halaman login...");
+        setTimeout(() => {
+          window.location.href = "/login";
+        }, 700);
       }
     } catch {
       setErrorMsg("Gagal terhubung ke server pendaftaran. Silakan coba lagi.");
-    } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault();
+    executeRegister();
   };
 
   return (
@@ -82,6 +96,13 @@ export default function RegisterPage() {
         </p>
       </div>
 
+      {successMsg && (
+        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2.5 animate-pulse">
+          <span className="text-base">✅</span>
+          <span>{successMsg}</span>
+        </div>
+      )}
+
       {errorMsg && (
         <div className="p-3.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-medium flex items-center gap-2">
           <span>⚠️</span>
@@ -89,7 +110,7 @@ export default function RegisterPage() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <form onSubmit={handleSubmit} action="#" className="space-y-4">
         <div className="space-y-1.5">
           <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider">
             Nama Lengkap
@@ -147,12 +168,15 @@ export default function RegisterPage() {
         </div>
 
         <button
-          type="submit"
-          disabled={isLoading}
+          type="button"
+          onClick={executeRegister}
+          disabled={isLoading || !!successMsg}
           className="w-full py-3 px-4 rounded-xl font-bold text-sm text-white bg-red-700 hover:bg-red-800 disabled:opacity-50 transition-all shadow-xs cursor-pointer flex items-center justify-center gap-2"
         >
           {isLoading ? (
             <span>Mendaftarkan...</span>
+          ) : successMsg ? (
+            <span>Berhasil Mendaftar ✓</span>
           ) : (
             <>
               <span>Daftar Akun</span>

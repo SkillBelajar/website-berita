@@ -57,14 +57,16 @@ const candidateBases = [
 // Helper client & server fetcher
 export async function clientFetch(endpoint: string, options: RequestInit = {}): Promise<Response> {
   const isClient = typeof window !== "undefined";
-  const candidates = isClient
-    ? ["/api/v1", API_BASE_URL, "http://localhost:8383/api/v1"]
-    : candidateBases;
+  const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
+
+  if (isClient) {
+    // Di browser client, selalu gunakan relative proxy Next.js /api/v1 agar aman dari mixed content & CORS
+    return fetch(`/api/v1${cleanEndpoint}`, options);
+  }
 
   let lastError: any = null;
-  for (const base of candidates) {
+  for (const base of candidateBases) {
     try {
-      const cleanEndpoint = endpoint.startsWith("/") ? endpoint : `/${endpoint}`;
       const url = `${base}${cleanEndpoint}`;
       const res = await fetch(url, options);
       return res;
