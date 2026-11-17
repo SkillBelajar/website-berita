@@ -33,3 +33,27 @@ func ConnectRedis() *redis.Client {
 	RedisClient = rdb
 	return RedisClient
 }
+
+// SetCache menyimpan nilai string atau JSON ke Redis dengan masa aktif TTL
+func SetCache(ctx context.Context, key string, value interface{}, ttl time.Duration) error {
+	if RedisClient == nil {
+		return fmt.Errorf("redis client belum diinisialisasi")
+	}
+	return RedisClient.Set(ctx, key, value, ttl).Err()
+}
+
+// GetCache mengambil nilai dari Redis berdasarkan key
+func GetCache(ctx context.Context, key string) (string, error) {
+	if RedisClient == nil {
+		return "", fmt.Errorf("redis client belum diinisialisasi")
+	}
+	return RedisClient.Get(ctx, key).Result()
+}
+
+// DeleteCache menghapus satu atau beberapa key dari Redis
+func DeleteCache(ctx context.Context, keys ...string) error {
+	if RedisClient == nil || len(keys) == 0 {
+		return nil
+	}
+	return RedisClient.Del(ctx, keys...).Err()
+}
