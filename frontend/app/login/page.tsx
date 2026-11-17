@@ -1,16 +1,33 @@
 "use client";
 
 import Link from "next/link";
-import { useState, FormEvent } from "react";
+import { useState, useEffect, FormEvent } from "react";
+import { useRouter } from "next/navigation";
 import { clientFetch } from "@/lib/api";
-import { saveAuth } from "@/lib/auth";
+import { saveAuth, getAuth } from "@/lib/auth";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
+  const [successData, setSuccessData] = useState<{ target: string; label: string } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Jika sudah terautentikasi sebelumnya, langsung alihkan ke halaman yang sesuai
+  useEffect(() => {
+    const auth = getAuth();
+    if (auth.token && auth.role) {
+      const target =
+        auth.role === "superadmin" || auth.role === "editor"
+          ? "/admin"
+          : auth.role === "journalist"
+          ? "/tulis-berita"
+          : "/";
+      window.location.replace(target);
+    }
+  }, []);
 
   const executeLogin = async () => {
     // Ambil value dari state atau DOM langsung untuk mendukung password manager & autofill
@@ -81,11 +98,21 @@ export default function LoginPage() {
           : "Beranda";
 
       saveAuth(data.token, data.role, userName, inputEmail);
-      setSuccessMsg(`Login berhasil! Selamat datang, ${userName}. Mengalihkan ke ${targetLabel}...`);
+      setSuccessMsg(`Login berhasil! Selamat datang, ${userName}.`);
+      setSuccessData({ target: redirectTarget, label: targetLabel });
 
+      // Navigasi Next.js router
+      try {
+        router.push(redirectTarget);
+        router.refresh();
+      } catch {
+        // fallback
+      }
+
+      // Hard redirect langsung dijamin berpindah di semua platform/peramban
       setTimeout(() => {
-        window.location.href = redirectTarget;
-      }, 500);
+        window.location.replace(redirectTarget);
+      }, 300);
     } catch {
       setErrorMsg("Gagal terhubung ke server autentikasi. Silakan periksa koneksi Anda.");
       setIsLoading(false);
@@ -112,9 +139,24 @@ export default function LoginPage() {
       </div>
 
       {successMsg && (
-        <div className="p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-bold flex items-center gap-2.5 animate-pulse">
-          <span className="text-base">✅</span>
-          <span>{successMsg}</span>
+        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-900 space-y-2.5">
+          <div className="flex items-center gap-2 text-xs font-bold text-emerald-800">
+            <span className="text-base">✅</span>
+            <span>{successMsg}</span>
+          </div>
+          {successData && (
+            <div className="pt-2 border-t border-emerald-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+              <span className="text-[11px] text-emerald-700">
+                Mengalihkan ke <strong>{successData.label}</strong>...
+              </span>
+              <a
+                href={successData.target}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-all shadow-xs"
+              >
+                Lanjutkan Sekarang &rarr;
+              </a>
+            </div>
+          )}
         </div>
       )}
 
