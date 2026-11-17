@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { getArticleBySlug, formatDateTimeWIB, getArticleMeta } from "@/lib/api";
+import { getArticleBySlug, formatDateTimeWIB, getArticleMeta, parseArticleBlocks } from "@/lib/api";
 import ShareButtons from "@/components/ShareButtons";
 import CommentSection from "@/components/CommentSection";
 import HakJawabForm from "@/components/HakJawabForm";
@@ -38,9 +38,8 @@ export default async function ArticleDetailPage({ params }: Props) {
   const hasCorrections = corrections.length > 0;
   const isEdited = hasCorrections || article.updated_at !== article.created_at;
 
-  // Pemisahan paragraf naskah berita
-  const rawParagraphs = article.content.split("\n\n").filter((p) => p.trim() !== "");
-  const paragraphs = rawParagraphs.length > 0 ? rawParagraphs : [article.content];
+  // Pemisahan blok naskah berita (teks, subjudul, kutipan, gambar inline)
+  const contentBlocks = parseArticleBlocks(article.content);
 
   // Inisial avatar wartawan
   const authorName = article.author?.name || "Redaksi Radar Berita";
@@ -216,16 +215,62 @@ export default async function ArticleDetailPage({ params }: Props) {
       {/* 6. ISI NASKAH ARTIKEL LENGKAP */}
       <div className="bg-white rounded-3xl border border-slate-200/90 p-6 sm:p-10 lg:p-14 shadow-sm space-y-6">
         <div className="text-slate-800 leading-[2] sm:leading-[2.1] text-base sm:text-lg space-y-6">
-          {paragraphs.map((paragraph, index) => (
-            <p
-              key={index}
-              className={`text-justify sm:text-left ${
-                index === 0 ? "drop-cap font-medium text-slate-900" : ""
-              }`}
-            >
-              {paragraph}
-            </p>
-          ))}
+          {contentBlocks.map((block, index) => {
+            if (block.type === "image") {
+              return (
+                <figure
+                  key={index}
+                  className="my-6 space-y-2 rounded-2xl overflow-hidden border border-slate-200 bg-slate-50 p-2 sm:p-3 shadow-2xs"
+                >
+                  <img
+                    src={block.src}
+                    alt={block.alt || article.title}
+                    className="w-full max-h-[550px] object-cover rounded-xl"
+                  />
+                  {block.alt && (
+                    <figcaption className="text-center text-xs italic text-slate-600 pt-1 font-medium">
+                      📷 {block.alt}
+                    </figcaption>
+                  )}
+                </figure>
+              );
+            }
+
+            if (block.type === "h2") {
+              return (
+                <h2
+                  key={index}
+                  className="text-xl sm:text-2xl font-black text-slate-900 font-serif pt-6 pb-2 border-b border-slate-100"
+                >
+                  {block.text}
+                </h2>
+              );
+            }
+
+            if (block.type === "quote") {
+              return (
+                <blockquote
+                  key={index}
+                  className="border-l-4 border-red-700 pl-4 py-2 italic bg-red-50/40 rounded-r-xl text-slate-800 font-serif my-4"
+                >
+                  {block.text}
+                </blockquote>
+              );
+            }
+
+            // Paragraf biasa dengan drop-cap di paragraf pertama
+            const isFirstParagraph = index === 0 || !contentBlocks.slice(0, index).some(b => b.type === "paragraph");
+            return (
+              <p
+                key={index}
+                className={`text-justify sm:text-left ${
+                  isFirstParagraph ? "drop-cap font-medium text-slate-900" : ""
+                }`}
+              >
+                {block.text}
+              </p>
+            );
+          })}
         </div>
 
         {/* Footer Berbagi Artikel */}

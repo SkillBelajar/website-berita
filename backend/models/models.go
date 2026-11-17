@@ -31,6 +31,8 @@ type Article struct {
 	Title         string          `gorm:"type:varchar(255);not null" json:"title"`
 	Slug          string          `gorm:"type:varchar(255);uniqueIndex;not null" json:"slug"`
 	Content       string          `gorm:"type:text;not null" json:"content"`
+	FeaturedImage string          `gorm:"type:text" json:"featured_image"`
+	ImageCaption  string          `gorm:"type:varchar(255)" json:"image_caption"`
 	AuthorID      uint            `gorm:"not null;index" json:"author_id"`
 	Author        User            `gorm:"foreignKey:AuthorID;constraint:OnUpdate:CASCADE,OnDelete:RESTRICT" json:"author,omitempty"`
 	IsAdvertorial bool            `gorm:"default:false;not null" json:"is_advertorial"`

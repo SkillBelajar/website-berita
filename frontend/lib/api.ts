@@ -19,6 +19,8 @@ export interface Article {
   title: string;
   slug: string;
   content: string;
+  featured_image?: string;
+  image_caption?: string;
   author_id: number;
   author?: Author;
   is_advertorial: boolean;
@@ -175,6 +177,17 @@ export function getArticleMeta(article: Article): ArticleMeta {
   const slug = (article.slug || "").toLowerCase();
   const title = (article.title || "").toLowerCase();
 
+  // Jika artikel memiliki gambar unggulan kustom (Base64 atau URL)
+  if (article.featured_image && article.featured_image.trim() !== "") {
+    return {
+      imageUrl: article.featured_image,
+      category: article.is_advertorial ? "Advertorial Berbayar" : "Warta Redaksi",
+      readTime: "± 3 menit baca",
+      photoCredit: article.image_caption || "Foto: Dokumentasi Redaksi Radar Berita",
+      caption: article.image_caption || `Dokumentasi peliputan: ${article.title}`,
+    };
+  }
+
   if (slug.includes("jembatan") || title.includes("jembatan")) {
     return {
       imageUrl:
@@ -208,4 +221,68 @@ export function getArticleMeta(article: Article): ArticleMeta {
     caption:
       "Pemberitaan jurnalisme faktual dan berimbang dengan standar kepatuhan pers PPMS Dewan Pers.",
   };
+}
+
+export interface ContentBlock {
+  type: "paragraph" | "image" | "h2" | "quote";
+  text?: string;
+  alt?: string;
+  src?: string;
+}
+
+/**
+ * Parser tangguh untuk konten artikel:
+ * Memisahkan teks biasa, subjudul (##), kutipan (>), dan gambar Markdown/Base64 (![alt](src))
+ */
+export function parseArticleBlocks(content: string): ContentBlock[] {
+  if (!content) return [];
+  const normalized = content.replace(/\r\n/g, "\n");
+  const imgRegex = /!\[(.*?)\]\((.*?)\)/g;
+  const blocks: ContentBlock[] = [];
+  let lastIndex = 0;
+  let match;
+
+  while ((match = imgRegex.exec(normalized)) !== null) {
+    const textBefore = normalized.substring(lastIndex, match.index);
+    if (textBefore.trim()) {
+      const subParagraphs = textBefore.split(/\n\s*\n/);
+      for (const p of subParagraphs) {
+        const trimmed = p.trim();
+        if (!trimmed) continue;
+        if (trimmed.startsWith("## ")) {
+          blocks.push({ type: "h2", text: trimmed.replace(/^##\s+/, "") });
+        } else if (trimmed.startsWith("> ")) {
+          blocks.push({ type: "quote", text: trimmed.replace(/^>\s+/, "") });
+        } else {
+          blocks.push({ type: "paragraph", text: trimmed });
+        }
+      }
+    }
+
+    blocks.push({
+      type: "image",
+      alt: match[1],
+      src: match[2],
+    });
+
+    lastIndex = imgRegex.lastIndex;
+  }
+
+  const remaining = normalized.substring(lastIndex);
+  if (remaining.trim()) {
+    const subParagraphs = remaining.split(/\n\s*\n/);
+    for (const p of subParagraphs) {
+      const trimmed = p.trim();
+      if (!trimmed) continue;
+      if (trimmed.startsWith("## ")) {
+        blocks.push({ type: "h2", text: trimmed.replace(/^##\s+/, "") });
+      } else if (trimmed.startsWith("> ")) {
+        blocks.push({ type: "quote", text: trimmed.replace(/^>\s+/, "") });
+      } else {
+        blocks.push({ type: "paragraph", text: trimmed });
+      }
+    }
+  }
+
+  return blocks;
 }

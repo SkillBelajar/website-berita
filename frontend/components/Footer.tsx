@@ -116,7 +116,7 @@ export default async function Footer() {
             <span>Standar Kepatuhan Siber Dewan Pers Republik Indonesia</span>
           </div>
           <div className="font-mono text-slate-300 font-bold bg-slate-900 px-3 py-1.5 rounded-lg border border-slate-800">
-            Versi Aplikasi: 1.0 (Production Ready)
+            Versi Aplikasi: 1.2 (Sistem Foto Unggulan & Editor Base64)
           </div>
         </div>
       </div>

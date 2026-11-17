@@ -19,11 +19,15 @@ type CreateArticleRequest struct {
 	Title         string `json:"title"`
 	Slug          string `json:"slug"`
 	Content       string `json:"content"`
+	FeaturedImage string `json:"featured_image"`
+	ImageCaption  string `json:"image_caption"`
 	IsAdvertorial bool   `json:"is_advertorial"`
 }
 
 type CorrectArticleRequest struct {
 	Content          string `json:"content"`
+	FeaturedImage    string `json:"featured_image"`
+	ImageCaption     string `json:"image_caption"`
 	CorrectionReason string `json:"correction_reason"`
 }
 
@@ -74,6 +78,8 @@ func (c *ArticleController) CreateArticle(w http.ResponseWriter, r *http.Request
 		Title:         req.Title,
 		Slug:          req.Slug,
 		Content:       req.Content,
+		FeaturedImage: req.FeaturedImage,
+		ImageCaption:  req.ImageCaption,
 		AuthorID:      authorID,
 		IsAdvertorial: req.IsAdvertorial,
 		CreatedAt:     now,
@@ -289,6 +295,12 @@ func (c *ArticleController) CorrectArticle(w http.ResponseWriter, r *http.Reques
 
 	// 1. Update konten artikel (GORM otomatis memperbarui UpdatedAt / dateModified)
 	article.Content = req.Content
+	if req.FeaturedImage != "" {
+		article.FeaturedImage = req.FeaturedImage
+	}
+	if req.ImageCaption != "" {
+		article.ImageCaption = req.ImageCaption
+	}
 	article.UpdatedAt = time.Now()
 	if err := config.DB.Save(&article).Error; err != nil {
 		middleware.RespondError(w, http.StatusInternalServerError, "Gagal memperbarui konten artikel")
