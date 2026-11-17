@@ -6,6 +6,7 @@ import { getAuth, clearAuth, AuthState } from "@/lib/auth";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isFullHeaderOpen, setIsFullHeaderOpen] = useState(false);
   const [auth, setAuth] = useState<AuthState>({
     token: null,
     role: null,
@@ -22,10 +23,114 @@ export default function Header() {
 
   const handleLogout = () => {
     clearAuth();
+    setIsFullHeaderOpen(false);
   };
 
+  // 1. JIKA SUDAH LOGIN DAN HEADER TIDAK DIBUKA PENUH:
+  // Sembunyikan header atas dekoratif yang tinggi, tampilkan toolbar ramping (hemat ruang menulis)
+  if (auth.token && !isFullHeaderOpen) {
+    return (
+      <header className="bg-slate-950 text-white border-b border-red-700 sticky top-0 z-50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 py-2 flex items-center justify-between gap-3">
+          {/* Sisi Kiri: Brand Ringkas + Navigasi Redaksi */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Link href="/" className="flex items-baseline gap-1 group">
+              <span className="text-base sm:text-lg font-black tracking-tight text-white uppercase font-serif">
+                RADAR
+              </span>
+              <span className="text-base sm:text-lg font-black tracking-tight text-red-500 uppercase font-serif">
+                BERITA
+              </span>
+              <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block"></span>
+            </Link>
+
+            <span className="text-slate-700">|</span>
+
+            <Link
+              href="/"
+              className="hidden sm:flex text-xs font-semibold text-slate-300 hover:text-white transition-colors items-center gap-1"
+            >
+              <span>🏠</span> Beranda
+            </Link>
+
+            {/* Tombol Khusus Redaksi */}
+            {(auth.role === "superadmin" || auth.role === "editor" || auth.role === "journalist") && (
+              <Link
+                href="/tulis-berita"
+                className="px-2.5 py-1 text-xs font-black text-white bg-red-700 hover:bg-red-800 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs"
+              >
+                <span>✍️</span> Tulis Berita
+              </Link>
+            )}
+
+            {/* Tombol Khusus Admin / Editor */}
+            {(auth.role === "superadmin" || auth.role === "editor") && (
+              <Link
+                href="/admin"
+                className="px-2.5 py-1 text-xs font-black text-slate-950 bg-amber-400 hover:bg-amber-300 rounded-lg transition-colors flex items-center gap-1.5 shadow-xs"
+              >
+                <span>🛡️</span> Panel Admin
+              </Link>
+            )}
+          </div>
+
+          {/* Sisi Kanan: Profil, Toggle Header Penuh, & Logout */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="flex items-center gap-2 bg-slate-900 border border-slate-800 px-2.5 py-1 rounded-full text-xs">
+              <div className="w-5 h-5 rounded-full bg-red-700 text-white text-[10px] font-bold flex items-center justify-center">
+                {auth.name ? auth.name[0].toUpperCase() : "U"}
+              </div>
+              <span className="text-slate-200 font-bold text-xs max-w-[100px] sm:max-w-[150px] truncate">
+                {auth.name}
+              </span>
+              <span className="text-[9px] font-black tracking-wider text-amber-400 bg-amber-950/60 px-1.5 py-0.5 rounded uppercase">
+                {auth.role}
+              </span>
+            </div>
+
+            {/* Tombol Buka Header Penuh */}
+            <button
+              onClick={() => setIsFullHeaderOpen(true)}
+              className="px-2.5 py-1 text-xs font-medium text-slate-300 hover:text-white bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-lg transition-colors flex items-center gap-1 cursor-pointer"
+              title="Buka navigasi koran lengkap"
+            >
+              <span>👁️</span>
+              <span className="hidden md:inline text-[11px]">Header Berita</span> ▾
+            </button>
+
+            <button
+              onClick={handleLogout}
+              className="px-2 py-1 text-xs font-bold text-slate-400 hover:text-red-400 hover:bg-slate-900 rounded-lg transition-colors cursor-pointer"
+            >
+              Keluar
+            </button>
+          </div>
+        </div>
+      </header>
+    );
+  }
+
+  // 2. HEADER LENGKAP: Tampil untuk tamu belum login ATAU saat dibuka manual oleh user
   return (
     <header className="bg-white border-b-2 border-red-700 sticky top-0 z-50 shadow-sm">
+      {/* Banner Khusus untuk Menutup Kembali Header jika sedang login */}
+      {auth.token && (
+        <div className="bg-slate-950 text-slate-300 text-xs py-1.5 px-4 border-b border-slate-800 flex items-center justify-between">
+          <div className="flex items-center gap-2 text-[11px]">
+            <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+            <span>
+              Mode Redaksi: <strong>{auth.name}</strong> ({auth.role})
+            </span>
+          </div>
+          <button
+            onClick={() => setIsFullHeaderOpen(false)}
+            className="text-[11px] font-bold text-amber-400 hover:text-amber-300 flex items-center gap-1 cursor-pointer bg-slate-900 px-2.5 py-0.5 rounded border border-slate-700"
+          >
+            <span>▴</span> Sembunyikan Header (Mode Fokus Naskah)
+          </button>
+        </div>
+      )}
+
       {/* 1. TOP UTILITY BAR (Edisi & Kepatuhan Pers) */}
       <div className="bg-slate-900 text-slate-300 text-xs py-1.5 px-4 border-b border-slate-800">
         <div className="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-2">
