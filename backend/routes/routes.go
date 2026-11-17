@@ -12,15 +12,16 @@ import (
 func SetupRoutes(mux *http.ServeMux) {
 	authCtrl := controllers.NewAuthController()
 	articleCtrl := controllers.NewArticleController()
+	commentCtrl := controllers.NewCommentController()
 
 	// 1. Endpoint Kesehatan / Health
 	mux.HandleFunc("/api/v1/health", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]string{
-			"version":      "0.7",
+			"version":      "0.8",
 			"db_status":    "connected",
 			"redis_status": "connected",
-			"message":      "Core CMS API & Kepatuhan Artikel PPMS active",
+			"message":      "UGC Risk Management & Moderation active",
 		})
 	})
 
@@ -32,11 +33,22 @@ func SetupRoutes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/v1/articles", articleCtrl.GetArticles)
 	mux.HandleFunc("GET /api/v1/articles/{slug}", articleCtrl.GetArticleBySlug)
 
-	// 4. Endpoint Terproteksi Autentikasi User (AuthMiddleware)
+	// 4. Endpoint UGC Komentar Publik
+	mux.HandleFunc("GET /api/v1/articles/{id}/comments", commentCtrl.GetArticleComments)
+
+	// 5. Endpoint Terproteksi User Terotentikasi (AuthMiddleware)
 	meHandler := http.HandlerFunc(authCtrl.Me)
 	mux.Handle("GET /api/v1/auth/me", middleware.AuthMiddleware(meHandler))
 
-	// 5. Endpoint Terproteksi CMS Editorial (AuthMiddleware & RoleMiddleware)
+	// User submit comment (dengan auto-filter UGC)
+	createCommentHandler := http.HandlerFunc(commentCtrl.CreateComment)
+	mux.Handle("POST /api/v1/articles/{id}/comments", middleware.AuthMiddleware(createCommentHandler))
+
+	// User report comment (report abuse)
+	reportCommentHandler := http.HandlerFunc(commentCtrl.ReportComment)
+	mux.Handle("POST /api/v1/comments/{id}/report", middleware.AuthMiddleware(reportCommentHandler))
+
+	// 6. Endpoint Terproteksi CMS Editorial (AuthMiddleware & RoleMiddleware)
 	// Create Article: Superadmin, Editor, Journalist
 	createArticleHandler := http.HandlerFunc(articleCtrl.CreateArticle)
 	mux.Handle("POST /api/v1/admin/articles",
@@ -45,11 +57,27 @@ func SetupRoutes(mux *http.ServeMux) {
 		),
 	)
 
-	// Correct Article (PPMS): Hanya Superadmin dan Editor yang berhak meratifikasi ralat
+	// Correct Article (PPMS): Hanya Superadmin dan Editor
 	correctArticleHandler := http.HandlerFunc(articleCtrl.CorrectArticle)
 	mux.Handle("PUT /api/v1/admin/articles/{id}/correction",
 		middleware.AuthMiddleware(
 			middleware.RoleMiddleware("superadmin", "editor")(correctArticleHandler),
+		),
+	)
+
+	// Antrean Moderasi Komentar (Superadmin & Editor)
+	moderationQueueHandler := http.HandlerFunc(commentCtrl.GetModerationQueue)
+	mux.Handle("GET /api/v1/admin/moderation/comments",
+		middleware.AuthMiddleware(
+			middleware.RoleMiddleware("superadmin", "editor")(moderationQueueHandler),
+		),
+	)
+
+	// Aksi Moderasi Komentar (Superadmin & Editor: Delete / Ignore)
+	moderateActionHandler := http.HandlerFunc(commentCtrl.ModerateCommentAction)
+	mux.Handle("PUT /api/v1/admin/moderation/comments/{id}",
+		middleware.AuthMiddleware(
+			middleware.RoleMiddleware("superadmin", "editor")(moderateActionHandler),
 		),
 	)
 
@@ -66,7 +94,7 @@ func SetupRoutes(mux *http.ServeMux) {
 		),
 	)
 
-	// 6. Fallback Root
+	// 7. Fallback Root
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		if r.URL.Path != "/" {
 			http.NotFound(w, r)
@@ -74,7 +102,7 @@ func SetupRoutes(mux *http.ServeMux) {
 		}
 		w.Header().Set("Content-Type", "application/json")
 		_ = json.NewEncoder(w).Encode(map[string]string{
-			"message":  "Backend Berjalan - Versi 0.7",
+			"message":  "Backend Berjalan - Versi 0.8",
 			"health":   "/api/v1/health",
 			"articles": "/api/v1/articles",
 		})
